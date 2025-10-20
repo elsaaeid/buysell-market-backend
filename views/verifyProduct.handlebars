@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{title}}</title>
+  <style>
+    body {
+      padding: 30px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #181818;
+    }
+
+    .container {
+      color: white;
+      max-width: 600px;
+      margin: 0 auto;
+      background: #232323;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+      padding: 2rem;
+    }
+
+    .my {
+      margin: 2rem 0;
+    }
+
+    .link {
+      text-decoration: none;
+      color: white;
+      background-color: #04d13e;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      display: inline-block;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+
+    ul {
+      padding: 0;
+      margin: 1.5rem 0;
+      list-style: none;
+    }
+
+    ul li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1rem;
+      word-break: break-word;
+    }
+
+    ul li:last-child {
+      border-bottom: none;
+    }
+
+    .slider-container {
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .slider-container img {
+      display: inline-block;
+      max-width: 80px;
+      max-height: 60px;
+      margin-right: 4px;
+      border-radius: 4px;
+    }
+
+    .floorPlan-list {
+      padding: 0;
+      list-style: none;
+    }
+
+    .floorPlan-item {
+      margin-bottom: 1rem;
+    }
+
+    .product-image {
+      max-width: 120px;
+      max-height: 80px;
+      border-radius: 4px;
+    }
+
+    .floor-plan-image {
+      max-width: 100%;
+      border-radius: 4px;
+    }
+
+    .video-frame {
+      width: 100%;
+      height: 200px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .floor-plan-details {
+      font-size: 0.9rem;
+      color: #999;
+    }
+
+    .floor-plan-image-container {
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+
+      ul li {
+        font-size: 0.95rem;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .link {
+        width: 100%;
+        text-align: center;
+      }
+
+      .slider-container img {
+        max-width: 70px;
+        max-height: 50px;
+      }
+
+      iframe {
+        width: 100% !important;
+        height: 200px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    {{#if creatorMessage}}
+      <div style="background:#222;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:8px;border-left:4px solid #04d13e;">
+        <strong>{{creatorMessage}}</strong>
+      </div>
+    {{/if}}
+
+    <p style="margin-bottom:1.5rem;">{{verify_instruction}}</p>
+
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <h4>Product Details</h4>
+    </div>
+
+    {{#if productDetails}}
+      <ul>
+        {{#each productDetails}}
+          {{#if this.value}}
+            <li style="flex-direction:column;align-items:flex-start;">
+              <span style="font-weight:bold;margin-bottom:0.25rem;">{{this.label}}</span>
+              <div style="width:100%;white-space:pre-line;">
+                {{#if (or (eq this.label ../descriptionLabel) )}}
+                  {{{this.value}}}
+                {{else if (eq this.label ../nameLabel)}}
+                {{else if (eq this.label ../imageLabel)}}
+                  <img src="{{this.value.filePath}}" alt="Product Image" class="product-image" />
+                {{else if (eq this.label ../productSlideImagesLabel)}}
+                  {{#if this.value.length}}
+                    <div class="slider-container">
+                      {{#each this.value}}
+                        {{#if this.filePath}}
+                          <img src="{{this.filePath}}" alt="Slide Image" />
+                        {{/if}}
+                      {{/each}}
+                    </div>
+                  {{/if}}
+                {{else if (eq this.label ../productTypeLabel)}}
+                {{else}}
+                  {{this.value}}
+                {{/if}}
+              </div>
+            </li>
+          {{/if}}
+        {{/each}}
+      </ul>
+    {{/if}}
+
+    <p>{{link_validity}}</p>
+
+    <div class="link">
+      <a href="{{link}}" style="color:inherit;text-decoration:none;">{{verify_button}}</a>
+    </div>
+
+    <div class="my">
+      <p>{{regards}}</p>
+    </div>
+  </div>
+</body>
+</html>
