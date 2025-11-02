@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{title}}</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #181818;
+    }
+
+    .container {
+      color: #fff;
+      max-width: 600px;
+      margin: 0 auto;
+      background: #232323;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+
+    .message-box {
+      background: #222;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #04d13e;
+    }
+
+    .section-title {
+      text-align: center;
+      margin: 1.5rem 0;
+      color: #04d13e;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.5rem;
+    }
+
+    .verify-text {
+      color: #ddd;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      white-space: pre-line;
+    }
+
+    .verify-btn {
+      display: inline-block;
+      text-decoration: none;
+      color: #fff !important;
+      background-color: #04d13e;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+
+    .footer {
+      color: #999;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      .container {
+        padding: 1.25rem;
+      }
+
+      .verify-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    {{#if creatorMessage}}
+      <div class="message-box">
+        <strong>{{creatorMessage}}</strong>
+      </div>
+    {{/if}}
+
+    {{#if verify_instruction}}
+      <p class="verify-text">{{verify_instruction}}</p>
+    {{/if}}
+
+    <h3 class="section-title">Product Details</h3>
+
+    {{#if productDetails}}
+      {{#each productDetails}}
+        {{#if this.value}}
+          <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:12px;border-bottom:1px solid #333;">
+            <tr>
+              <td width="40%" valign="top" style="color:#04d13e;font-weight:bold;padding:6px 8px;">
+                {{this.label}}
+              </td>
+              <td width="60%" valign="top" style="color:#fff;padding:6px 8px;">
+                {{!-- Product Description --}}
+                {{#if (eq this.label ../descriptionLabel)}}
+                  {{{this.value}}}
+
+                {{!-- Product Colors --}}
+                {{else if (eq this.label ../colorLabel)}}
+                  {{#if this.value.length}}
+                    {{#each this.value}}
+                      {{#if this}}
+                        <span style="display:inline-block;width:18px;height:18px;border-radius:50%;border:1px solid #666;margin-right:5px;background-color:{{this}};"></span>
+                      {{else}}
+                        <span style="color:#aaa;">(No color)</span>
+                      {{/if}}
+                    {{/each}}
+                  {{else}}
+                    <div style="color:#aaa;">No colors provided</div>
+                  {{/if}}
+
+                {{!-- Product Images --}}
+                {{else if (eq this.label ../imagesLabel)}}
+                  {{#if this.value.length}}
+                    {{#each this.value}}
+                      {{#if this.filePath}}
+                        <img src="{{this.filePath}}" alt="Product Image" style="display:inline-block;max-width:80px;max-height:60px;margin-right:5px;border-radius:4px;" />
+                      {{/if}}
+                    {{/each}}
+                  {{/if}}
+
+                {{!-- Default --}}
+                {{else}}
+                  {{this.value}}
+                {{/if}}
+              </td>
+            </tr>
+          </table>
+        {{/if}}
+      {{/each}}
+    {{/if}}
+
+    {{#if link_validity}}
+      <p class="verify-text">{{link_validity}}</p>
+    {{/if}}
+
+    {{#if link}}
+      <a href="{{link}}" class="verify-btn">{{verify_button}}</a>
+    {{/if}}
+
+    {{#if regards}}
+      <div class="footer">
+        <p>{{regards}}</p>
+      </div>
+    {{/if}}
+  </div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "backend": "nodemon server.js",
+    "build": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@huaweicloud/huaweicloud-sdk-core": "^3.1.124",
+    "@huaweicloud/huaweicloud-sdk-vpc": "^3.1.124",
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.0",
+    "cloudinary": "^1.32.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "cryptr": "^6.2.0",
+    "dotenv": "^16.0.2",
+    "express": "^4.19.2",
+    "express-async-handler": "^1.2.0",
+    "google-auth-library": "^9.0.0",
+    "googleapis": "^137.1.0",
+    "http-proxy-middleware": "^3.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "module": "^1.2.5",
+    "mongoose": "^6.6.1",
+    "multer": "^1.4.5-lts.1",
+    "node": "^21.7.1",
+    "nodemailer": "^6.7.8",
+    "nodemailer-express-handlebars": "^6.1.0",
+    "nodemon": "^3.0.1",
+    "toastify-react": "^4.3.1",
+    "ua-parser-js": "^1.0.35",
+    "validator": "^13.11.0"
+  }
+}
