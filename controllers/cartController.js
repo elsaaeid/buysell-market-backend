@@ -58,6 +58,11 @@ const addToCart = async (req, res) => {
       // 🧩 Update quantity & totalPrice
       existingItem.quantity += Number(quantity);
       existingItem.totalPrice = Number(existingItem.price) * existingItem.quantity;
+      // 🧩 Ensure owner fields are set (for items added before this fix)
+      if (!existingItem.ownerId && !existingItem.productOwnerId) {
+        existingItem.ownerId = product.user || product.userId || null;
+        existingItem.productOwnerId = product.user || product.userId || null;
+      }
     } else {
       // 🧩 Add new item with variant support
       cart.items.push({
@@ -76,6 +81,8 @@ const addToCart = async (req, res) => {
         totalPrice:
           Number(product.price ?? price ?? 0) * Number(quantity || 1),
         currency: product.currency || currency || "USD",
+        ownerId: product.user || product.userId || null,
+        productOwnerId: product.user || product.userId || null,
       });
     }
 
@@ -113,6 +120,13 @@ const getCartItems = async (req, res) => {
     const cart = await Cart.findOne({ userId }).populate("items._id").lean();
     if (!cart) return res.status(200).json({ items: [] });
 
+    // console.log("🛒 Cart items raw:", cart.items.map(i => ({
+    //   productId: i._id?._id,
+    //   ownerId: i.ownerId,
+    //   productOwnerId: i.productOwnerId,
+    //   productUser: i._id?.user
+    // })));
+
     const items = (cart.items || []).map((item) => {
       const product = item._id || {};
       return {
@@ -129,6 +143,8 @@ const getCartItems = async (req, res) => {
         discount: Number(item.discount ?? product.discount ?? 0),
         quantity: Number(item.quantity ?? 1),
         currency: item.currency || product.currency || "USD",
+        ownerId: item.ownerId || product.user || product.userId || null,
+        productOwnerId: item.productOwnerId || product.user || product.userId || null,
         totalPrice:
           Number(item.totalPrice) ||
           Number(item.price ?? product.price ?? 0) *

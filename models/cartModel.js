@@ -20,6 +20,14 @@ const cartItemSchema = new mongoose.Schema(
     productType: { type: String, trim: true },
     totalPrice: { type: Number, default: 0 },
     currency: { type: String, default: "USD", trim: true },
+    ownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    productOwnerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   { _id: false }
 );

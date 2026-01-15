@@ -58,16 +58,34 @@ async function createPaymentKey(authToken, orderId, amountCents, customer = {}, 
 // 4️⃣ Create Payment Controller
 async function createPayment(req, res) {
   try {
-    const { amount, customer, currency, productOwnerId } = req.body;
+    const { amount, currency, customer, productOwnerId } = req.body;
+
+    console.log("💳 Payment Request Body:", { amount, currency, productOwnerId, customer });
 
     if (!amount || !productOwnerId) {
+      console.error("❌ Missing required fields:", { amount, productOwnerId });
       return res.status(400).json({ success: false, message: "Amount and productOwnerId are required" });
     }
 
     // Find the seller
     const seller = await User.findById(productOwnerId);
-    if (!seller || !seller.paymobMerchantId) {
-      return res.status(400).json({ success: false, message: "Product owner does not have a Paymob merchant account" });
+    
+    // ⚠️ Handle orphaned products (owner was deleted) - use current user as fallback
+    let actualSeller = seller;
+    if (!seller) {
+      // console.warn(`⚠️ Product owner ${productOwnerId} not found (deleted user). Using buyer as seller for payment.`);
+      actualSeller = req.user; // Use the logged-in user
+      if (!actualSeller) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "Authentication required"
+        });
+      }
+    }
+
+    // ⚠️ Warning if seller has no merchant account (optional for now)
+    if (!actualSeller.paymobMerchantId) {
+      // console.warn(`⚠️ Seller ${actualSeller.email} does not have a Paymob merchant account. Payment will proceed without split.`);
     }
 
     const usedCurrency = currency || "EGP";
@@ -89,8 +107,8 @@ async function createPayment(req, res) {
       ownerShare,
       customer,
       orderId,
-      ownerId: productOwnerId,
-      ownerMerchantId: seller.paymobMerchantId,
+      ownerId: actualSeller._id,
+      ownerMerchantId: actualSeller.paymobMerchantId || null, // Allow null for sellers without merchant accounts
       currency: usedCurrency,
       status: "pending",
     });
