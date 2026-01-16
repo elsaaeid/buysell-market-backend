@@ -7,7 +7,9 @@ const productsRoute = require("./routes/productsRoute");
 const paymentRoute = require("./routes/paymentRoute");
 const favoriteCompareRoute = require('./routes/favoriteCompareRoute');
 const cartRoute = require("./routes/cartRoute");
+const couponRoute = require("./routes/couponRoute");
 const contactRoute = require("./routes/contactRoute");
+const orderRoute = require("./routes/orderRoute");
 const errorHandler = require("./middleWare/errorMiddleware");
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
@@ -42,8 +44,10 @@ app.use("/api/users", userRoute);
 app.use("/api/products", productsRoute);
 app.use("/api/products", favoriteCompareRoute);
 app.use("/api/cart", cartRoute);
+app.use("/api/coupon", couponRoute);
 app.use("/api/contactus", contactRoute);
 app.use("/api/payment", paymentRoute);
+app.use("/api/orders", orderRoute);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 

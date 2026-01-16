@@ -58,9 +58,7 @@ async function createPaymentKey(authToken, orderId, amountCents, customer = {}, 
 // 4️⃣ Create Payment Controller
 async function createPayment(req, res) {
   try {
-    const { amount, currency, customer, productOwnerId } = req.body;
-
-    console.log("💳 Payment Request Body:", { amount, currency, productOwnerId, customer });
+    const { amount, currency, customer, productOwnerId, couponDiscount = 0 } = req.body;
 
     if (!amount || !productOwnerId) {
       console.error("❌ Missing required fields:", { amount, productOwnerId });
@@ -73,8 +71,7 @@ async function createPayment(req, res) {
     // ⚠️ Handle orphaned products (owner was deleted) - use current user as fallback
     let actualSeller = seller;
     if (!seller) {
-      // console.warn(`⚠️ Product owner ${productOwnerId} not found (deleted user). Using buyer as seller for payment.`);
-      actualSeller = req.user; // Use the logged-in user
+      actualSeller = req.user;
       if (!actualSeller) {
         return res.status(401).json({ 
           success: false, 
@@ -83,32 +80,33 @@ async function createPayment(req, res) {
       }
     }
 
-    // ⚠️ Warning if seller has no merchant account (optional for now)
-    if (!actualSeller.paymobMerchantId) {
-      // console.warn(`⚠️ Seller ${actualSeller.email} does not have a Paymob merchant account. Payment will proceed without split.`);
-    }
-
     const usedCurrency = currency || "EGP";
 
-    // 💰 Calculate shares
-    const adminShare = Number((amount * 0.2).toFixed(2));
-    const ownerShare = Number((amount * 0.8).toFixed(2));
+    // 💰 Apply coupon discount
+    const couponDiscountAmount = Number((amount * couponDiscount / 100).toFixed(2));
+    const finalAmount = Number((amount - couponDiscountAmount).toFixed(2));
+
+    // 💰 Calculate shares (based on final amount after coupon)
+    const adminShare = Number((finalAmount * 0.2).toFixed(2));
+    const ownerShare = Number((finalAmount * 0.8).toFixed(2));
 
     const authToken = await getAuthToken();
-    const orderId = await createOrder(authToken, Math.round(amount * 100), usedCurrency);
-    const paymentKey = await createPaymentKey(authToken, orderId, Math.round(amount * 100), customer, usedCurrency);
+    const orderId = await createOrder(authToken, Math.round(finalAmount * 100), usedCurrency);
+    const paymentKey = await createPaymentKey(authToken, orderId, Math.round(finalAmount * 100), customer, usedCurrency);
 
     const iframeUrl = `https://accept.paymobsolutions.com/api/acceptance/iframes/${PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`;
 
     // Save in DB
     const paymentDoc = await Payment.create({
-      totalAmount: amount,
+      totalAmount: finalAmount,
+      originalAmount: amount,
+      couponDiscount: couponDiscountAmount,
       adminShare,
       ownerShare,
       customer,
       orderId,
       ownerId: actualSeller._id,
-      ownerMerchantId: actualSeller.paymobMerchantId || null, // Allow null for sellers without merchant accounts
+      ownerMerchantId: actualSeller.paymobMerchantId || null,
       currency: usedCurrency,
       status: "pending",
     });
@@ -116,6 +114,9 @@ async function createPayment(req, res) {
     res.status(200).json({
       success: true,
       iframeUrl,
+      originalAmount: amount,
+      couponDiscount: couponDiscountAmount,
+      finalAmount,
       adminShare,
       ownerShare,
       total: amount,

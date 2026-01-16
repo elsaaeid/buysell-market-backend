@@ -45,6 +45,11 @@ const cartSchema = new mongoose.Schema(
     },
     items: [cartItemSchema],
     totalAmount: { type: Number, default: 0 },
+    coupon: {
+      code: { type: String, trim: true },
+      discountPercent: { type: Number, default: 0, min: 0, max: 100 },
+      appliedAt: { type: Date },
+    },
   },
   { timestamps: true }
 );
